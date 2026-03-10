@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail - No es magia. Es ingeniería alemana. Hasta 200€ de descuento</title>
+    <!-- Favicon de El Corte Inglés (simulado) -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/El_Corte_Ingl%C3%A9s_logo.svg/32px-El_Corte_Ingl%C3%A9s_logo.svg.png" type="image/png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Tipografía UI de Gmail y cuerpo */
+        body { font-family: 'Google Sans', 'Inter', sans-serif; background-color: #f6f8fc; }
+        
+        /* Contenedor principal para no hacer scroll en la ventana, solo en el contenido */
+        .app-wrapper { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Animación de entrada */
+        .email-item { opacity: 0; transform: translateY(20px); transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); display: none; }
+        .email-item.active { display: block; }
+        .email-item.visible { opacity: 1; transform: translateY(0); }
+        
+        /* ESTILOS ESPECÍFICOS DEL EMAIL ECI */
+        .clean-email { font-family: 'Montserrat', sans-serif; color: #000000; }
+        .eci-green { color: #008a32; }
+        .eci-bg-green { background-color: #008a32; }
+        .eci-black { color: #000000; }
+        .eci-cyan { color: #3cc8be; }
+
+        .btn-agentforce {
+            background-color: #f3f4f6;
+            color: #000000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .promo-card { 
+            border-radius: 12px; 
+            padding: 24px; 
+            text-align: center; 
+            background: #000000;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary { 
+            background-color: #008a32;
+            color: white; 
+            width: 100%; 
+            padding: 14px; 
+            font-weight: 700; 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            border-radius: 6px; 
+            display: block; 
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover { background-color: #006b26; }
+
+        /* Estilos del sidebar clonado de Gmail */
+        .nav-item { display: flex; align-items: center; padding: 0 12px 0 26px; height: 32px; font-size: 14px; color: #202124; border-radius: 0 16px 16px 0; margin-right: 16px; cursor: pointer; }
+        .nav-item:hover { background-color: #f1f3f4; }
+        .nav-item.active { background-color: #d3e3fd; color: #041e49; font-weight: 600; }
+        .nav-item i { width: 24px; font-size: 16px; margin-right: 18px; color: #444746; }
+        .nav-item.active i { color: #041e49; }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #bdc1c6; }
+    </style>
+</head>
+<body>
+
+    <!-- CONFIGURADOR DE LA DEMO -->
+    <div id="configModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex items-center justify-center transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-[400px] max-w-[90%] border border-gray-100">
+            <div class="text-center mb-6">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/El_Corte_Ingl%C3%A9s_logo.svg/512px-El_Corte_Ingl%C3%A9s_logo.svg.png" alt="ECI" class="h-10 mx-auto mb-4">
+                <h2 class="text-xl font-bold text-black">Configuración de la Demo</h2>
+                <p class="text-sm text-gray-500 mt-1">Controla cuándo responde el Agente ECI tras enviar tu correo</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-3">Respuestas del Agente IA:</label>
+                    <div class="flex flex-col gap-3">
+                        <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="mode" value="manual" checked class="w-4 h-4 text-[#008a32] focus:ring-[#008a32]">
+                            <div>
+                                <span class="text-sm font-medium text-gray-800 block">Manual</span>
+                                <span class="text-xs text-gray-500">Pulsar tecla para ver la respuesta IA</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                            <input type="radio" name="mode" value="auto" class="w-4 h-4 text-[#008a32] focus:ring-[#008a32]">
+                            <div>
+                                <span class="text-sm font-medium text-gray-800 block">Automático</span>
+                                <span class="text-xs text-gray-500">Responde tras la pausa configurada</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="delayConfig" class="opacity-50 pointer-events-none transition-opacity duration-200 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <label class="block text-sm font-semibold text-gray-800 mb-2">Tiempo de transición:</label>
+                    <div class="flex items-center gap-3">
+                        <input type="number" id="timeDelay" value="2.5" min="0.5" step="0.5" class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#008a32] focus:ring-1 focus:ring-[#008a32] text-center font-medium">
+                        <span class="text-sm text-gray-600">segundos</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="startBtn" class="w-full mt-8 bg-black text-white py-3 rounded-xl font-bold text-sm hover:bg-gray-800 transition shadow-md flex justify-center items-center gap-2">
+                <i class="fa-solid fa-play text-xs"></i> COMENZAR DEMO
+            </button>
+        </div>
+    </div>
+
+    <div class="app-wrapper">
+        <!-- GMAIL HEADER CLONADO -->
+        <header class="flex items-center justify-between px-4 py-2 bg-[#f6f8fc] shrink-0">
+            <div class="flex items-center gap-4 w-[238px] shrink-0">
+                <div class="p-3 rounded-full hover:bg-gray-200 cursor-pointer transition">
+                    <i class="fa-solid fa-bars text-gray-600 text-[18px]"></i>
+                </div>
+                <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r5.png" alt="Gmail" class="h-10">
+            </div>
+            
+            <div class="flex-1 max-w-[720px] px-2">
+                <div class="bg-[#eaf1fb] hover:bg-white hover:shadow flex items-center px-4 py-2.5 rounded-full transition-all">
+                    <i class="fa-solid fa-magnifying-glass text-gray-600 ml-1 mr-4"></i>
+                    <input type="text" placeholder="Search mail" class="bg-transparent border-none outline-none w-full text-[15px] text-gray-700">
+                    <i class="fa-solid fa-sliders text-gray-600 ml-4 p-2 rounded-full hover:bg-gray-100 cursor-pointer"></i>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-1 shrink-0 px-2 text-gray-600">
+                <div class="p-2.5 rounded-full hover:bg-gray-200 cursor-pointer"><i class="fa-regular fa-circle-question text-[20px]"></i></div>
+                <div class="p-2.5 rounded-full hover:bg-gray-200 cursor-pointer"><i class="fa-solid fa-gear text-[20px]"></i></div>
+                <div class="p-2.5 rounded-full hover:bg-gray-200 cursor-pointer mr-2"><i class="fa-solid fa-braille text-[20px]"></i></div>
+                <div class="w-8 h-8 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-sm cursor-pointer ring-2 ring-white">C</div>
+            </div>
+        </header>
+
+        <!-- CUERPO PRINCIPAL -->
+        <div class="flex flex-1 overflow-hidden">
+            
+            <!-- LEFT SIDEBAR -->
+            <aside class="w-[256px] hidden md:flex flex-col bg-[#f6f8fc] shrink-0 py-2">
+                <div class="pl-2 mb-4">
+                    <button class="bg-[#c2e7ff] hover:bg-[#b5defb] text-[#001d35] flex items-center gap-4 px-4 py-3.5 rounded-2xl font-medium text-[14px] transition shadow-sm mx-2">
+                        <i class="fa-solid fa-pencil text-[18px]"></i>
+                        Compose
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto">
+                    <div class="nav-item active">
+                        <i class="fa-solid fa-inbox"></i>
+                        <span class="flex-1">Inbox</span>
+                        <span class="text-xs font-bold mr-1">301,048</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fa-regular fa-star"></i>
+                        <span class="flex-1">Starred</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="flex-1">Snoozed</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fa-regular fa-bookmark"></i>
+                        <span class="flex-1">Important</span>
+                    </div>
+                    <div class="nav-item">
+                        <i class="fa-regular fa-paper-plane"></i>
+                        <span class="flex-1">Sent</span>
+                    </div>
+                    <div class="nav-item mt-4 mb-2">
+                        <span class="text-[14px] font-medium text-[#202124] pl-2">Labels</span>
+                        <i class="fa-solid fa-plus ml-auto mr-1 text-sm cursor-pointer hover:bg-gray-200 p-1.5 rounded-full"></i>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- EMAIL CONTENT AREA -->
+            <div class="flex-1 bg-white md:rounded-2xl md:mr-4 md:mb-4 shadow-sm flex flex-col overflow-hidden relative">
+                
+                <!-- Toolbar Pegajoso -->
+                <div class="sticky top-0 bg-white px-2 py-2 flex items-center justify-between text-[#444746] z-10">
+                    <div class="flex items-center gap-1">
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-solid fa-arrow-left text-[15px]"></i></div>
+                        <div class="w-[1px] h-5 bg-gray-200 mx-2"></div>
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-solid fa-box-archive text-[15px]"></i></div>
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-solid fa-circle-exclamation text-[15px]"></i></div>
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-regular fa-trash-can text-[15px]"></i></div>
+                        <div class="w-[1px] h-5 bg-gray-200 mx-2"></div>
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-regular fa-envelope text-[15px]"></i></div>
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-solid fa-tag text-[15px]"></i></div>
+                        <div class="p-2.5 rounded-full hover:bg-[#f1f3f4] cursor-pointer"><i class="fa-solid fa-ellipsis-vertical text-[15px]"></i></div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="flex-1 overflow-y-auto px-4 md:px-14 py-4" id="scrollContainer">
+                    
+                    <!-- Subject -->
+                    <div class="flex items-center justify-between mb-8 pl-12 pr-4 mt-2">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <h1 class="text-[22px] text-[#1f1f1f] font-normal leading-tight">No es magia. Es ingeniería alemana. Hasta 200€ de descuento en Siemens.</h1>
+                            <span class="bg-[#e8eaed] text-[#3c4043] text-[11px] font-medium px-2 py-0.5 rounded flex items-center gap-1.5 cursor-pointer hover:bg-gray-300">
+                                Inbox <i class="fa-solid fa-xmark text-[10px]"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 1: PROMOCIÓN ECI -->
+                    <div class="email-item mb-2" id="email1">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 border border-gray-200 rounded-full bg-white flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/El_Corte_Ingl%C3%A9s_logo.svg/100px-El_Corte_Ingl%C3%A9s_logo.svg.png" class="w-6 object-contain" alt="ECI">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">El Corte Inglés <span class="text-xs font-normal text-gray-500">&lt;promociones@elcorteingles.es&gt;</span></span>
+                                        <span class="text-xs text-gray-500 flex items-center gap-1">to me <i class="fa-solid fa-caret-down text-[10px]"></i></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">09:00 AM (hace 4 horas)</span>
+                                        <i class="fa-regular fa-star cursor-pointer hover:text-gray-700"></i>
+                                        <i id="replyIcon1" class="fa-solid fa-reply cursor-pointer hover:text-gray-700" title="Reply"></i>
+                                        <i class="fa-solid fa-ellipsis-vertical cursor-pointer hover:text-gray-700"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- BODY DEL EMAIL (Centrado con padding) -->
+                        <div class="pl-0 md:pl-12 mt-4 pb-8 border-b border-gray-100 relative">
+                            <div class="bg-white clean-email border border-gray-200 rounded-lg shadow-sm overflow-hidden" style="max-width: 620px;">
+                                
+                                <!-- Cabecera ECI + Siemens -->
+                                <div class="bg-white px-6 md:px-8 py-6 flex items-center justify-between border-b border-gray-100">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/El_Corte_Ingl%C3%A9s_logo.svg/200px-El_Corte_Ingl%C3%A9s_logo.svg.png" alt="El Corte Inglés" class="h-8">
+                                    <span class="font-bold text-gray-400 text-xl tracking-widest">SIEMENS</span>
+                                </div>
+
+                                <div class="p-6 md:p-8">
+                                    <!-- Botón Agente -->
+                                    <div class="text-center mb-6">
+                                        <span class="btn-agentforce">
+                                            <i class="fa-solid fa-robot text-[#008a32]"></i> ASISTENTE DE COMPRAS ECI
+                                        </span>
+                                    </div>
+
+                                    <!-- Titular -->
+                                    <div class="text-center mb-6">
+                                        <h1 style="font-size: 24px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; color: #000000;">
+                                            No es magia.<br>Es ingeniería alemana.
+                                        </h1>
+                                        <div class="bg-black text-[#3cc8be] p-6 rounded-xl my-6">
+                                            <p class="font-semibold text-lg mb-2">Ahora, solo para ti, con hasta</p>
+                                            <p class="text-5xl font-black">200€<span class="text-2xl align-top">*</span></p>
+                                            <p class="font-semibold text-lg mt-2">de descuento</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pasos / Info -->
+                                    <div class="mb-8">
+                                        <div class="space-y-4 text-sm text-gray-700">
+                                            <div class="flex items-center gap-3 border-b border-gray-100 pb-3">
+                                                <i class="fa-solid fa-shirt text-2xl w-8 text-center text-gray-400"></i>
+                                                <div>
+                                                    <strong class="text-black">Lavadoras y Secadoras</strong>
+                                                    <p class="text-xs mt-1">Inteligentes. Ahorran tiempo y energía. <strong>-100€ de cupón</strong></p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3 border-b border-gray-100 pb-3">
+                                                <i class="fa-solid fa-fire-burner text-2xl w-8 text-center text-gray-400"></i>
+                                                <div>
+                                                    <strong class="text-black">Hornos y Placas</strong>
+                                                    <p class="text-xs mt-1">Cocinar ya no es lo que era, es mejor. <strong>-150€ de cupón</strong></p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <i class="fa-solid fa-snowflake text-2xl w-8 text-center text-gray-400"></i>
+                                                <div>
+                                                    <strong class="text-black">Frigoríficos XXL</strong>
+                                                    <p class="text-xs mt-1">Pensados a lo grande. <strong>-200€ de cupón</strong></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-6 text-center">
+                                            <p class="text-xs text-gray-500"><i class="fa-solid fa-award text-[#008a32]"></i> Todos con <strong>5 Años de Garantía Total</strong></p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Call to Action Banner -->
+                                    <div class="mt-8 relative bg-green-50 rounded-2xl p-8 text-center overflow-hidden border border-green-200 shadow-sm">
+                                        <div class="absolute top-4 left-6 opacity-80 transform -rotate-12">
+                                            <span class="text-3xl">🛒</span>
+                                        </div>
+                                        <div class="absolute bottom-4 right-6 opacity-80 transform rotate-6">
+                                            <span class="text-4xl">🤖</span>
+                                        </div>
+
+                                        <h3 class="text-[20px] font-extrabold text-[#008a32] tracking-tight mb-2 relative z-10 leading-tight">
+                                            Compra directamente por aquí.
+                                        </h3>
+                                        <p class="text-[14px] font-medium text-gray-700 relative z-10">
+                                            Dime qué electrodoméstico buscas respondiendo a este correo. Te aplico el cupón, verifico stock y programamos tu entrega.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- BOTÓN REPLY DE EMAIL 1 -->
+                            <div class="mt-4 flex gap-3" id="replyArea1">
+                                <button id="replyBtn1" class="border border-gray-300 rounded-full px-6 py-2 text-[#444746] font-medium text-[14px] hover:bg-[#f1f3f4] transition flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-reply"></i> Reply
+                                </button>
+                                <button class="border border-gray-300 rounded-full px-6 py-2 text-[#444746] font-medium text-[14px] hover:bg-[#f1f3f4] transition flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-arrow-right"></i> Forward
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPOSE 1: CARLOS PREGUNTA POR LAVADORAS -->
+                    <div class="email-item pt-4" id="compose1">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-sm">C</div>
+                            <div class="flex-1 border border-gray-200 rounded-xl shadow-lg bg-white overflow-hidden flex flex-col relative mt-1">
+                                <div class="px-4 py-2 border-b border-gray-100 flex items-center text-[13px] text-gray-500 bg-gray-50">
+                                    <i class="fa-solid fa-reply mr-2 text-gray-400"></i>
+                                    <span class="mr-2">Para:</span>
+                                    <span class="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-gray-700 flex items-center gap-1 shadow-sm">El Corte Inglés <i class="fa-solid fa-xmark text-[10px] ml-1"></i></span>
+                                </div>
+                                <div class="p-5 text-[14px] text-[#202124] min-h-[120px] outline-none bg-white leading-relaxed cursor-text" contenteditable="false">
+                                    <!-- Contenedor simulando escritura -->
+                                    <div id="composeBody1" class="hidden">
+                                        <p>Hola,</p>
+                                        <p class="mt-2">He recibido este email y me viene que ni pintado porque mi lavadora acaba de decir basta. 😅</p>
+                                        <p class="mt-2">Sé que Siemens es muy buena marca y me interesa la promoción, pero veo que los 200€ son para frigoríficos. <strong>¿De cuánto es el descuento exacto para lavadoras?</strong></p>
+                                        <p class="mt-2">Somos 4 en casa y ponemos bastantes coladas a la semana. ¿Me podríais recomendar algún modelo concreto y decirme cómo aplicaría el descuento?</p>
+                                        <p class="mt-3">Gracias,<br>Carlos</p>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100">
+                                    <div class="flex gap-1 items-center">
+                                        <button id="sendBtn1" class="bg-[#0b57d0] hover:bg-[#0842a0] text-white px-6 py-2 rounded-full font-medium text-sm transition shadow-sm mr-2 cursor-pointer">Send</button>
+                                        <i class="fa-solid fa-paperclip text-gray-500 hover:bg-gray-200 p-2.5 rounded cursor-pointer"></i>
+                                        <i class="fa-regular fa-image text-gray-500 hover:bg-gray-200 p-2.5 rounded cursor-pointer"></i>
+                                    </div>
+                                    <i class="fa-regular fa-trash-can text-gray-500 hover:bg-gray-200 p-2.5 rounded cursor-pointer"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 2: PREGUNTA ENVIADA -->
+                    <div class="email-item pt-4" id="email2">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0">C</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Carlos Gomez <span class="text-xs font-normal text-gray-500">&lt;carlos.gomez@gmail.com&gt;</span></span>
+                                        <span class="text-xs text-gray-500 flex items-center gap-1">to El Corte Inglés <i class="fa-solid fa-caret-down text-[10px]"></i></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:15 AM (hace 2 horas)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pl-0 md:pl-12 mt-2 pb-6 border-b border-gray-100">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>Hola,</p>
+                                <p class="mt-2">He recibido este email y me viene que ni pintado porque mi lavadora acaba de decir basta. 😅</p>
+                                <p class="mt-2">Sé que Siemens es muy buena marca y me interesa la promoción, pero veo que los 200€ son para frigoríficos. <strong>¿De cuánto es el descuento exacto para lavadoras?</strong></p>
+                                <p class="mt-2">Somos 4 en casa y ponemos bastantes coladas a la semana. ¿Me podríais recomendar algún modelo concreto y decirme cómo aplicaría el descuento?</p>
+                                <p class="mt-3">Gracias,<br>Carlos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 3: RESPUESTA IA ECI RECOMENDANDO -->
+                    <div class="email-item pt-4" id="email3">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 border border-gray-200 rounded-full bg-white flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/El_Corte_Ingl%C3%A9s_logo.svg/100px-El_Corte_Ingl%C3%A9s_logo.svg.png" class="w-6 object-contain" alt="ECI">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Agente ECI <span class="text-xs font-normal text-gray-500">&lt;agente@elcorteingles.es&gt;</span></span>
+                                        <span class="text-xs text-gray-500 flex items-center gap-1">to me <i class="fa-solid fa-caret-down text-[10px]"></i></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:16 AM (hace 2 horas)</span>
+                                        <i id="replyIcon2" class="fa-solid fa-reply cursor-pointer hover:text-gray-700" title="Reply"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pl-0 md:pl-12 mt-2 pb-6 border-b border-gray-100 relative">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>¡Hola Carlos!</p>
+                                <p class="mt-2">Qué casualidad, has escrito en el momento perfecto. Efectivamente, Siemens es sinónimo de durabilidad y vas a notar mucho el salto en eficiencia frente a tu antigua lavadora.</p>
+                                
+                                <p class="mt-3">Aclarando tu duda: el descuento directo que te corresponde por la compra de una lavadora es de <strong>100€</strong> (Código: 94DB3IA1EWT9WL2BERCV).</p>
+
+                                <p class="mt-3">Al ser 4 personas en casa, te recomiendo ir a una capacidad de al menos <strong>9 kg</strong>. He analizado nuestro catálogo en base a tu perfil y aquí tienes mis dos mejores sugerencias. Ambas incluyen los <strong>5 Años de Garantía Total</strong>:</p>
+
+                                <!-- RECOMENDACIONES IA -->
+                                <div class="flex gap-4 overflow-x-auto py-4 mb-2 snap-x">
+                                    
+                                    <!-- Card 1: iQ500 -->
+                                    <div class="min-w-[240px] w-[240px] bg-white border border-[#008a32] rounded-lg p-3 shadow-sm relative shrink-0 snap-start flex flex-col">
+                                        <div class="absolute top-0 right-0 bg-[#008a32] text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg z-10">MEJOR CALIDAD/PRECIO</div>
+                                        <div class="bg-gray-50 p-2 rounded-md mb-3 flex justify-center">
+                                            <i class="fa-solid fa-shirt text-6xl text-gray-300 py-4"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-black text-[14px]">Siemens iQ500</h4>
+                                            <p class="text-[11px] text-gray-500 mt-1">9 kg • 1400 rpm • Clase A</p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <span class="line-through text-gray-400 text-xs">599€</span>
+                                                <span class="font-bold text-[#008a32] text-lg">499€</span>
+                                            </div>
+                                            <p class="text-[12px] text-gray-700 mt-2 leading-tight">Motor iQdrive silencioso y función varioSpeed para lavar un 65% más rápido.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Card 2: iQ700 -->
+                                    <div class="min-w-[240px] w-[240px] bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative shrink-0 snap-start flex flex-col">
+                                        <div class="absolute top-0 right-0 bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-1 rounded-bl-lg z-10">GAMA ALTA</div>
+                                        <div class="bg-gray-50 p-2 rounded-md mb-3 flex justify-center">
+                                            <i class="fa-solid fa-shirt text-6xl text-gray-400 py-4"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-black text-[14px]">Siemens iQ700 i-Dos</h4>
+                                            <p class="text-[11px] text-gray-500 mt-1">10 kg • 1400 rpm • Clase A</p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <span class="line-through text-gray-400 text-xs">799€</span>
+                                                <span class="font-bold text-[#008a32] text-lg">699€</span>
+                                            </div>
+                                            <p class="text-[12px] text-gray-700 mt-2 leading-tight">Autodosificación de detergente y control WiFi mediante Home Connect.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="mt-2">La entrega estándar, la puesta en marcha y la retirada de tu electrodoméstico antiguo están <strong>incluidas sin coste adicional</strong>.</p>
+                                <p class="mt-3 font-semibold">¿Cuál de las dos encaja mejor con lo que buscas? Dime también tu ciudad para verificar la disponibilidad inmediata.</p>
+                            </div>
+                            
+                            <div class="mt-4 flex gap-3" id="replyArea2">
+                                <button id="replyBtn2" class="border border-gray-300 rounded-full px-6 py-2 text-[#444746] font-medium text-[14px] hover:bg-[#f1f3f4] transition flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-reply"></i> Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPOSE 2: CARLOS ELIGE -->
+                    <div class="email-item pt-4" id="compose2">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-sm">C</div>
+                            <div class="flex-1 border border-gray-200 rounded-xl shadow-lg bg-white overflow-hidden flex flex-col relative mt-1">
+                                <div class="px-4 py-2 border-b border-gray-100 flex items-center text-[13px] text-gray-500 bg-gray-50">
+                                    <i class="fa-solid fa-reply mr-2 text-gray-400"></i>
+                                    <span class="mr-2">Para:</span>
+                                    <span class="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-gray-700 flex items-center gap-1 shadow-sm">Agente ECI <i class="fa-solid fa-xmark text-[10px] ml-1"></i></span>
+                                </div>
+                                <div class="p-5 text-[14px] text-[#202124] min-h-[100px] outline-none bg-white leading-relaxed cursor-text" contenteditable="false">
+                                    <div id="composeBody2" class="hidden">
+                                        <p>Me gusta mucho la <strong>iQ500 de 9kg</strong>. La autodosificación no la necesito realmente, así que por ese precio me parece una compra estupenda.</p>
+                                        <p class="mt-2">Vivo en <strong>Gijón (Asturias)</strong>. Como tengo ropa acumulada, me corre un poco de prisa tenerla instalada.</p>
+                                        <p class="mt-2">¿Cómo hago para comprarla aplicando el cupón de descuento?</p>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100">
+                                    <button id="sendBtn2" class="bg-[#0b57d0] hover:bg-[#0842a0] text-white px-6 py-2 rounded-full font-medium text-sm transition shadow-sm mr-2 cursor-pointer">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 4: ELECCIÓN ENVIADA -->
+                    <div class="email-item pt-4" id="email4">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0">C</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Carlos Gomez <span class="text-xs font-normal text-gray-500">&lt;carlos.gomez@gmail.com&gt;</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:45 AM (hace 10 minutos)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pl-0 md:pl-12 mt-2 pb-6 border-b border-gray-100">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>Me gusta mucho la <strong>iQ500 de 9kg</strong>. La autodosificación no la necesito realmente, así que por ese precio me parece una compra estupenda.</p>
+                                <p class="mt-2">Vivo en <strong>Gijón (Asturias)</strong>. Como tengo ropa acumulada, me corre un poco de prisa tenerla instalada.</p>
+                                <p class="mt-2">¿Cómo hago para comprarla aplicando el cupón de descuento?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 5: RESPUESTA FINAL IA CON CARRITO -->
+                    <div class="email-item pt-4" id="email5">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 border border-gray-200 rounded-full bg-white flex items-center justify-center shrink-0">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/El_Corte_Ingl%C3%A9s_logo.svg/100px-El_Corte_Ingl%C3%A9s_logo.svg.png" class="w-6 object-contain" alt="ECI">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Agente ECI <span class="text-xs font-normal text-gray-500">&lt;agente@elcorteingles.es&gt;</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:46 AM (ahora mismo)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pl-0 md:pl-12 mt-2 pb-12 border-b-0 border-gray-100 relative">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>¡Excelente elección, Carlos! Es uno de nuestros modelos estrella por su gran fiabilidad.</p>
+                                
+                                <p class="mt-3">Tengo muy buenas noticias: he comprobado nuestro sistema y contamos con stock inmediato en el centro de <strong>El Corte Inglés de Gijón (Uría)</strong>. Esto significa que podemos usar el servicio de <strong>Entrega en el día</strong>.</p>
+
+                                <div class="bg-[#f1f4f1] border border-[#c2c2c2] rounded-xl p-6 my-5 max-w-lg">
+                                    <div class="flex justify-between items-start border-b border-gray-300 pb-3 mb-3">
+                                        <div>
+                                            <p class="font-bold text-black">Tu Carrito ECI</p>
+                                            <p class="text-xs text-gray-500">Vendido y enviado por El Corte Inglés</p>
+                                        </div>
+                                        <i class="fa-solid fa-cart-shopping text-[#008a32] text-xl"></i>
+                                    </div>
+                                    
+                                    <div class="flex justify-between items-center mb-2">
+                                        <p class="text-sm">Lavadora Siemens iQ500 (9kg)</p>
+                                        <p class="text-sm font-semibold">599,00 €</p>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-2 text-[#008a32]">
+                                        <p class="text-sm"><i class="fa-solid fa-tag"></i> Cupón Siemens (-100€)</p>
+                                        <p class="text-sm font-semibold">-100,00 €</p>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-2 text-gray-600">
+                                        <p class="text-sm">Envío estándar, Instalación y Retirada</p>
+                                        <p class="text-sm font-semibold">GRATIS</p>
+                                    </div>
+                                    
+                                    <div class="border-t border-gray-300 mt-3 pt-3 flex justify-between items-center">
+                                        <p class="font-bold text-lg">Total a pagar:</p>
+                                        <p class="font-black text-2xl text-black">499,00 €</p>
+                                    </div>
+                                    
+                                    <button class="mt-5 w-full bg-[#008a32] hover:bg-[#006b26] text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2 transition cursor-pointer">
+                                        <i class="fa-solid fa-lock"></i> COMPLETAR COMPRA SEGURA
+                                    </button>
+                                </div>
+
+                                <p>Al hacer clic en el botón, el código ya estará introducido automáticamente. Solo tendrás que elegir tu franja horaria para recibirla (te sugiero mañana por la mañana) y el método de pago que prefieras.</p>
+                                
+                                <p class="mt-4">Quedo a tu disposición por aquí si tienes cualquier otra duda. ¡Espero que disfrutes de tu nueva lavadora!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE SIMULACIÓN -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const configModal = document.getElementById('configModal');
+            const modeRadios = document.getElementsByName('mode');
+            const delayConfig = document.getElementById('delayConfig');
+            const timeDelayInput = document.getElementById('timeDelay');
+            const startBtn = document.getElementById('startBtn');
+            
+            // Lógica UI del modal
+            modeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.value === 'auto') {
+                        delayConfig.classList.remove('opacity-50', 'pointer-events-none');
+                    } else {
+                        delayConfig.classList.add('opacity-50', 'pointer-events-none');
+                    }
+                });
+            });
+
+            // Iniciar Demo
+            startBtn.addEventListener('click', () => {
+                const aiMode = document.querySelector('input[name="mode"]:checked').value;
+                const delayMs = parseFloat(timeDelayInput.value) * 1000;
+                
+                configModal.classList.add('opacity-0');
+                setTimeout(() => {
+                    configModal.style.display = 'none';
+                    iniciarFlujo(aiMode, delayMs);
+                }, 300);
+            });
+
+            function iniciarFlujo(aiMode, delayMs) {
+                // Secuencia ajustada a 5 pasos reales
+                const sequence = [
+                    { action: 'show', id: 'email1', type: 'auto', delay: 500 },
+                    { action: 'show', id: 'compose1', type: 'click', triggerBtn: 'replyBtn1', altTriggerBtn: 'replyIcon1', hideId: 'replyArea1' }, 
+                    { action: 'reveal_content', targetId: 'composeBody1', type: 'keydown' }, 
+                    { action: 'replace', hideId: 'compose1', showId: 'email2', type: 'click', triggerBtn: 'sendBtn1' },
+                    { action: 'show', id: 'email3', type: 'ai_response' },
+                    { action: 'show', id: 'compose2', type: 'click', triggerBtn: 'replyBtn2', altTriggerBtn: 'replyIcon2', hideId: 'replyArea2' },
+                    { action: 'reveal_content', targetId: 'composeBody2', type: 'keydown' },
+                    { action: 'replace', hideId: 'compose2', showId: 'email4', type: 'click', triggerBtn: 'sendBtn2' },
+                    { action: 'show', id: 'email5', type: 'ai_response' }
+                ];
+                
+                const container = document.getElementById('scrollContainer');
+                let currentStep = 0;
+
+                function animateIn(el) {
+                    el.classList.add('active'); 
+                    void el.offsetWidth; 
+                    el.classList.add('visible');
+                }
+
+                function scrollAfter(targetEl) {
+                    setTimeout(() => {
+                        const parentItem = targetEl.closest('.email-item') || targetEl;
+                        const topPos = parentItem.offsetTop - 70;
+                        container.scrollTo({ top: topPos, behavior: 'smooth' });
+                    }, 50);
+                }
+
+                function showNext() {
+                    if (currentStep >= sequence.length) return;
+                    
+                    const step = sequence[currentStep];
+                    let targetEl = null;
+
+                    if (step.action === 'show') {
+                        targetEl = document.getElementById(step.id);
+                        if (targetEl) animateIn(targetEl);
+                        
+                        if (step.hideId) {
+                            const hEl = document.getElementById(step.hideId);
+                            if (hEl) hEl.style.display = 'none';
+                        }
+                    } else if (step.action === 'replace') {
+                        const hideEl = document.getElementById(step.hideId);
+                        targetEl = document.getElementById(step.showId);
+                        
+                        if (hideEl) {
+                            hideEl.classList.remove('visible', 'active');
+                            hideEl.style.display = 'none'; 
+                        }
+                        if (targetEl) animateIn(targetEl);
+                    } else if (step.action === 'reveal_content') {
+                        const contentEl = document.getElementById(step.targetId);
+                        if (contentEl) contentEl.classList.remove('hidden');
+                        targetEl = contentEl;
+                    }
+                    
+                    if (targetEl) scrollAfter(targetEl);
+                    
+                    currentStep++;
+                    setupTriggerForCurrentStep();
+                }
+
+                const aiKeydownHandler = (e) => {
+                    if (e.key !== "Alt" && e.key !== "Control" && e.key !== "Shift" && e.key !== "Meta") {
+                        document.removeEventListener('keydown', aiKeydownHandler);
+                        showNext();
+                    }
+                };
+
+                function setupTriggerForCurrentStep() {
+                    if (currentStep >= sequence.length) return;
+
+                    const nextStep = sequence[currentStep];
+
+                    if (nextStep.type === 'auto') {
+                        setTimeout(showNext, nextStep.delay || 0);
+                    } 
+                    else if (nextStep.type === 'click') {
+                        const btn = document.getElementById(nextStep.triggerBtn);
+                        const altBtn = nextStep.altTriggerBtn ? document.getElementById(nextStep.altTriggerBtn) : null;
+                        
+                        const onClick = function() {
+                            if(btn) btn.removeEventListener('click', onClick);
+                            if(altBtn) altBtn.removeEventListener('click', onClick);
+                            showNext();
+                        };
+
+                        if (btn) btn.addEventListener('click', onClick);
+                        if (altBtn) altBtn.addEventListener('click', onClick);
+                    }
+                    else if (nextStep.type === 'keydown') {
+                        const revealHandler = (e) => {
+                            if (e.key !== "Alt" && e.key !== "Control" && e.key !== "Shift" && e.key !== "Meta") {
+                                e.preventDefault();
+                                document.removeEventListener('keydown', revealHandler);
+                                showNext();
+                            }
+                        };
+                        document.addEventListener('keydown', revealHandler);
+                    }
+                    else if (nextStep.type === 'ai_response') {
+                        if (aiMode === 'auto') {
+                            setTimeout(showNext, delayMs);
+                        } else {
+                            document.addEventListener('keydown', aiKeydownHandler);
+                        }
+                    }
+                }
+
+                // Iniciar máquina de estados
+                setupTriggerForCurrentStep();
+            }
+        });
+    </script>
+</body>
+</html>
