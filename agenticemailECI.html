@@ -546,13 +546,13 @@
                                         <span class="font-bold text-[14px] text-[#202124]">Agente ECI <span class="text-xs font-normal text-gray-500">&lt;agente@elcorteingles.es&gt;</span></span>
                                     </div>
                                     <div class="flex items-center gap-3 text-gray-500">
-                                        <span class="text-xs">10:46 AM (ahora mismo)</span>
+                                        <span class="text-xs">10:46 AM (hace 5 minutos)</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="pl-0 md:pl-12 mt-2 pb-12 border-b-0 border-gray-100 relative">
+                        <div class="pl-0 md:pl-12 mt-2 pb-6 border-b border-gray-100 relative">
                             <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
                                 <p>¡Excelente elección, Carlos! Es uno de nuestros modelos estrella por su gran fiabilidad.</p>
                                 
@@ -590,9 +590,135 @@
                                     </button>
                                 </div>
 
-                                <p>Al hacer clic en el botón, el código ya estará introducido automáticamente. Solo tendrás que elegir tu franja horaria para recibirla (te sugiero mañana por la mañana) y el método de pago que prefieras.</p>
+                                <p>Al hacer clic en el botón, serás redirigido a la pasarela de pago y el cupón de 100€ se aplicará automáticamente. Te escribiré de nuevo por aquí en cuanto se confirme el pedido.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 6: AGENTFORCE CONFIRMACIÓN COMPRA Y WHATSAPP -->
+                    <div class="email-item pt-4" id="email6">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 border border-gray-200 rounded-full bg-white flex items-center justify-center shrink-0">
+                                <img src="https://jcompan.github.io/elcorteingles/email_imgs/favicon.png" class="w-6 object-contain" alt="ECI">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Agente ECI <span class="text-xs font-normal text-gray-500">&lt;agente@elcorteingles.es&gt;</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:50 AM (ahora mismo)</span>
+                                        <i id="replyIcon3" class="fa-solid fa-reply cursor-pointer hover:text-gray-700" title="Reply"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pl-0 md:pl-12 mt-2 pb-6 border-b border-gray-100 relative">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>¡Compra completada con éxito, Carlos! 🎉</p>
                                 
-                                <p class="mt-4">Quedo a tu disposición por aquí si tienes cualquier otra duda. ¡Espero que disfrutes de tu nueva lavadora!</p>
+                                <p class="mt-2">He recibido la notificación de tu pedido <strong>#09876543</strong>. Ya estamos preparando tu lavadora Siemens iQ500 para el envío.</p>
+
+                                <!-- Solicitud WhatsApp -->
+                                <div class="mt-5 p-4 bg-green-50 border border-green-200 rounded-xl text-[#002b49] shadow-sm">
+                                    <div class="flex items-start gap-4">
+                                        <div class="mt-1 w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                                            <i class="fa-brands fa-whatsapp text-[#25D366] text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <strong class="text-[#008a32] text-[15px]">¿Validamos tu entrega por WhatsApp?</strong><br>
+                                            <span class="text-[13px] mt-1 block leading-relaxed">Para ponértelo más fácil, si nos das tu OK te notificaremos la franja exacta de entrega por WhatsApp. Además, si te surge algún imprevisto, podrás <strong>reprogramar la entrega</strong> directamente respondiendo a ese mismo chat.</span>
+                                            <span class="text-[13px] font-bold mt-2 block">Responde a este correo con un "Sí" o un simple "OK" para darnos tu consentimiento.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- BOTÓN REPLY DE EMAIL 6 -->
+                            <div class="mt-4 flex gap-3" id="replyArea3">
+                                <button id="replyBtn3" class="border border-gray-300 rounded-full px-6 py-2 text-[#444746] font-medium text-[14px] hover:bg-[#f1f3f4] transition flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-reply"></i> Reply
+                                </button>
+                                <button class="border border-gray-300 rounded-full px-6 py-2 text-[#444746] font-medium text-[14px] hover:bg-[#f1f3f4] transition flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-arrow-right"></i> Forward
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPOSE 3: CARLOS DA OK A WHATSAPP -->
+                    <div class="email-item pt-4" id="compose3">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0 z-10 shadow-sm">C</div>
+                            <div class="flex-1 border border-gray-200 rounded-xl shadow-lg bg-white overflow-hidden flex flex-col relative mt-1">
+                                <div class="px-4 py-2 border-b border-gray-100 flex items-center text-[13px] text-gray-500 bg-gray-50">
+                                    <i class="fa-solid fa-reply mr-2 text-gray-400"></i>
+                                    <span class="mr-2">Para:</span>
+                                    <span class="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-gray-700 flex items-center gap-1 shadow-sm">Agente ECI <i class="fa-solid fa-xmark text-[10px] ml-1"></i></span>
+                                </div>
+                                <div class="p-5 text-[14px] text-[#202124] min-h-[80px] outline-none bg-white leading-relaxed cursor-text" contenteditable="false">
+                                    <div id="composeBody3" class="hidden">
+                                        <p>¡Qué rápido! Sí, perfecto. Os doy mi OK para que me aviséis y gestionemos la entrega por WhatsApp.</p>
+                                        <p class="mt-2">¡Muchas gracias por todo!</p>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100">
+                                    <button id="sendBtn3" class="bg-[#0b57d0] hover:bg-[#0842a0] text-white px-6 py-2 rounded-full font-medium text-sm transition shadow-sm mr-2 cursor-pointer">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 7: CARLOS CONFIRMA WHATSAPP ENVIADO -->
+                    <div class="email-item pt-4" id="email7">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0">C</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Carlos Gomez <span class="text-xs font-normal text-gray-500">&lt;carlos.gomez@gmail.com&gt;</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:52 AM (hace 1 minuto)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pl-0 md:pl-12 mt-2 pb-6 border-b border-gray-100">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>¡Qué rápido! Sí, perfecto. Os doy mi OK para que me aviséis y gestionemos la entrega por WhatsApp.</p>
+                                <p class="mt-2">¡Muchas gracias por todo!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL 8: AGENTFORCE DESPEDIDA FINAL -->
+                    <div class="email-item pt-4" id="email8">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-10 h-10 border border-gray-200 rounded-full bg-white flex items-center justify-center shrink-0">
+                                <img src="https://jcompan.github.io/elcorteingles/email_imgs/favicon.png" class="w-6 object-contain" alt="ECI">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[14px] text-[#202124]">Agente ECI <span class="text-xs font-normal text-gray-500">&lt;agente@elcorteingles.es&gt;</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-500">
+                                        <span class="text-xs">10:52 AM (ahora mismo)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pl-0 md:pl-12 mt-2 pb-12 border-b-0 border-gray-100 relative">
+                            <div class="text-[14px] text-[#202124] leading-relaxed max-w-3xl">
+                                <p>¡Genial, Carlos! 📱 <strong>Permiso registrado con éxito.</strong></p>
+                                
+                                <p class="mt-2">Nuestro equipo de logística te escribirá muy pronto por WhatsApp para confirmar que estamos de camino con tu nueva lavadora.</p>
+
+                                <p class="mt-4">Ha sido un placer ayudarte hoy. ¡Gracias por confiar en El Corte Inglés y que disfrutes de tu nueva Siemens!</p>
                             </div>
                         </div>
                     </div>
@@ -635,7 +761,7 @@
             });
 
             function iniciarFlujo(aiMode, delayMs) {
-                // Secuencia ajustada a 5 pasos reales
+                // Secuencia ajustada con checkout manual y validación WhatsApp
                 const sequence = [
                     { action: 'show', id: 'email1', type: 'auto', delay: 500 },
                     { action: 'show', id: 'compose1', type: 'click', triggerBtn: 'replyBtn1', altTriggerBtn: 'replyIcon1', hideId: 'replyArea1' }, 
@@ -645,7 +771,14 @@
                     { action: 'show', id: 'compose2', type: 'click', triggerBtn: 'replyBtn2', altTriggerBtn: 'replyIcon2', hideId: 'replyArea2' },
                     { action: 'reveal_content', targetId: 'composeBody2', type: 'keydown' },
                     { action: 'replace', hideId: 'compose2', showId: 'email4', type: 'click', triggerBtn: 'sendBtn2' },
-                    { action: 'show', id: 'email5', type: 'ai_response' }
+                    { action: 'show', id: 'email5', type: 'ai_response' },
+                    // El agente detecta que la compra se realizó fuera y envía la confirmación (vía tecla en manual)
+                    { action: 'show', id: 'email6', type: 'ai_response' },
+                    // Sigue validación WhatsApp
+                    { action: 'show', id: 'compose3', type: 'click', triggerBtn: 'replyBtn3', altTriggerBtn: 'replyIcon3', hideId: 'replyArea3' },
+                    { action: 'reveal_content', targetId: 'composeBody3', type: 'keydown' },
+                    { action: 'replace', hideId: 'compose3', showId: 'email7', type: 'click', triggerBtn: 'sendBtn3' },
+                    { action: 'show', id: 'email8', type: 'ai_response' }
                 ];
                 
                 const container = document.getElementById('scrollContainer');
