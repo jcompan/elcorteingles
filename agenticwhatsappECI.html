@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp - Logística El Corte Inglés</title>
+    <!-- Favicon de WhatsApp -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" type="image/png">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React & ReactDOM via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel standalone para compilar JSX en el navegador en tiempo real -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #d1d7db; /* Color de fondo exterior de WhatsApp Web */
+        }
+        .bg-chat {
+            /* Patrón clásico de fondo de WhatsApp */
+            background-color: #efeae2;
+            background-image: url("https://w0.peakpx.com/wallpaper/508/606/HD-wallpaper-whatsapp-background-cool-dark-green-light-pattern-patterns-smart-texture-theme.jpg");
+            background-blend-mode: overlay;
+            background-size: cover;
+            background-position: center;
+        }
+        /* Scrollbar personalizado para el chat */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+
+        .typing-dot {
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const ECI_LOGO = "https://jcompan.github.io/elcorteingles/email_imgs/favicon.png"; // Logo para el avatar
+
+        function WhatsAppDemo() {
+            // Obtener la hora actual en formato HH:MM
+            const getCurrentTime = () => {
+                const now = new Date();
+                return now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const initialTime = getCurrentTime();
+
+            // Estado de los mensajes
+            const [messages, setMessages] = useState([
+                {
+                    id: 1,
+                    sender: 'agent',
+                    text: '¡Hola Carlos! 👋 Soy el asistente virtual de Logística de El Corte Inglés. Te escribo por tu pedido de la Lavadora Siemens iQ700.',
+                    time: initialTime,
+                    status: 'read'
+                },
+                {
+                    id: 2,
+                    sender: 'agent',
+                    text: 'La entrega con instalación gratuita la tenemos programada para **mañana entre las 09:00 y las 11:00**. \n\n¿Te viene bien este horario o prefieres que busquemos otra franja?',
+                    time: initialTime,
+                    status: 'read'
+                }
+            ]);
+
+            const [inputText, setInputText] = useState('');
+            const [isTyping, setIsTyping] = useState(false);
+            const [demoStep, setDemoStep] = useState(1);
+            const chatEndRef = useRef(null);
+
+            // Auto-scroll al final del chat
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, [messages, isTyping]);
+
+            // Lógica de control de teclado para la demo
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.key === "Alt" || e.key === "Control" || e.key === "Shift" || e.key === "Meta") return;
+
+                    // Paso 1: Rellenar input con la negativa de Carlos
+                    if (demoStep === 1) {
+                        e.preventDefault();
+                        setInputText("Hola. Uf, por la mañana me es imposible, estoy trabajando en la oficina y no habrá nadie en casa.");
+                        setDemoStep(2); // Espera a enviar
+                    }
+                    // Paso 3: Agente responde con opciones de re-scheduling
+                    else if (demoStep === 3) {
+                        e.preventDefault();
+                        setIsTyping(false);
+                        setMessages(prev => [...prev, {
+                            id: Date.now(),
+                            sender: 'agent',
+                            text: 'No te preocupes, lo cambiamos ahora mismo. 🔄\n\nHe revisado las rutas de nuestros instaladores en la zona de Gijón. Tenemos hueco en estas franjas:\n\n🔘 Mañana de **16:00 a 18:00**\n🔘 El viernes de **10:00 a 12:00**\n\n¿Alguna de estas te encaja mejor?',
+                            time: getCurrentTime(),
+                            status: 'read'
+                        }]);
+                        setDemoStep(4); // Espera al siguiente input
+                    }
+                    // Paso 4: Rellenar input eligiendo la tarde
+                    else if (demoStep === 4) {
+                        e.preventDefault();
+                        setInputText("Mañana por la tarde de 16:00 a 18:00 me viene perfecto.");
+                        setDemoStep(5); // Espera a enviar
+                    }
+                    // Paso 6: Agente confirma la nueva cita
+                    else if (demoStep === 6) {
+                        e.preventDefault();
+                        setIsTyping(false);
+                        setMessages(prev => [...prev, {
+                            id: Date.now(),
+                            sender: 'agent',
+                            text: '¡Perfecto! 🚚 Queda confirmada la entrega y montaje para **mañana entre las 16:00 y las 18:00** en tu domicilio.\n\nEl instalador te llamará 30 minutos antes de llegar para avisarte.\n\n¡Que pases un buen día! ✨',
+                            time: getCurrentTime(),
+                            status: 'read'
+                        }]);
+                        setDemoStep(7); // Fin de la demo principal
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [demoStep]);
+
+            const handleSendMessage = (e) => {
+                e.preventDefault();
+                if (!inputText.trim()) return;
+
+                // Añadir mensaje del usuario
+                setMessages(prev => [...prev, {
+                    id: Date.now(),
+                    sender: 'user',
+                    text: inputText.trim(),
+                    time: getCurrentTime(),
+                    status: 'sent' // Cambiará rápido a read simulado
+                }]);
+                
+                setInputText('');
+                setIsTyping(true); // El agente se pone a "escribir"
+
+                // Avanzar estados de la demo
+                if (demoStep === 2) {
+                    setDemoStep(3); // Espera tecla para que el agente conteste
+                } else if (demoStep === 5) {
+                    setDemoStep(6);
+                }
+            };
+
+            // Formatear texto para admitir negritas estilo WhatsApp (*texto*)
+            const formatText = (text) => {
+                const parts = text.split(/(\*\*.*?\*\*)/g);
+                return parts.map((part, index) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={index}>{part.slice(2, -2)}</strong>;
+                    }
+                    return part;
+                });
+            };
+
+            return (
+                <div className="h-screen w-full flex items-center justify-center bg-[#d1d7db] sm:py-6">
+                    {/* Contenedor tipo iPhone 17 Pro Max */}
+                    <div className="w-full h-full sm:h-[90vh] sm:max-h-[932px] sm:w-[430px] bg-white sm:rounded-[55px] sm:border-[16px] sm:border-black shadow-2xl flex flex-col overflow-hidden relative ring-1 ring-gray-900/10">
+                        
+                        {/* Dynamic Island (Solo visible en desktop simulando el iPhone) */}
+                        <div className="hidden sm:block absolute top-3 left-1/2 -translate-x-1/2 w-[126px] h-[37px] bg-black rounded-full z-50"></div>
+
+                        {/* Barra de estado iOS simulada */}
+                        <div className="hidden sm:flex h-[54px] bg-[#008069] w-full items-center justify-between px-8 text-white font-semibold text-[15px] shrink-0 pt-3 z-40 relative">
+                            <span className="w-12 text-center ml-1">{getCurrentTime()}</span>
+                            <div className="flex gap-2 items-center text-[14px] mr-1">
+                                <i className="fa-solid fa-signal"></i>
+                                <i className="fa-solid fa-wifi"></i>
+                                <i className="fa-solid fa-battery-full text-[17px]"></i>
+                            </div>
+                        </div>
+
+                        {/* Cabecera de WhatsApp */}
+                        <div className="bg-[#008069] text-white flex items-center px-4 pb-3 pt-3 sm:pt-1 shadow-md z-10 shrink-0">
+                            <div className="flex items-center gap-3 flex-1 cursor-pointer">
+                                <i className="fa-solid fa-arrow-left text-xl sm:hidden"></i>
+                                <i className="fa-solid fa-chevron-left text-2xl hidden sm:block mr-1 text-green-100"></i>
+                                <div className="relative">
+                                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1.5 overflow-hidden shadow-sm">
+                                        <img src={ECI_LOGO} alt="ECI" className="w-full h-full object-contain" />
+                                    </div>
+                                    {/* Insignia de cuenta verificada de WhatsApp */}
+                                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full w-4 h-4 flex items-center justify-center shadow-sm">
+                                        <i className="fa-solid fa-certificate text-[#008069] text-[12px]"></i>
+                                        <i className="fa-solid fa-check absolute text-white text-[8px] mt-[1px]"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h1 className="font-semibold text-[16px] leading-tight flex items-center gap-1">
+                                        El Corte Inglés
+                                    </h1>
+                                    <p className="text-[12px] text-green-100">Cuenta de empresa verificada</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-5 text-xl">
+                                <i className="fa-solid fa-video cursor-pointer hover:text-gray-200 transition-colors"></i>
+                                <i className="fa-solid fa-phone cursor-pointer hover:text-gray-200 transition-colors"></i>
+                                <i className="fa-solid fa-ellipsis-vertical cursor-pointer hover:text-gray-200 transition-colors"></i>
+                            </div>
+                        </div>
+
+                        {/* Banner de seguridad y confianza */}
+                        <div className="absolute top-[68px] sm:top-[115px] left-0 right-0 z-10 p-2 flex justify-center pointer-events-none">
+                            <div className="bg-[#ffeecd] text-[#544c45] text-[11.5px] px-3 py-1.5 rounded-lg text-center shadow-sm max-w-[95%] leading-snug flex gap-2 items-center">
+                                <i className="fa-solid fa-lock"></i>
+                                <span>Los mensajes y las llamadas están cifrados de extremo a extremo. Nadie fuera de este chat puede leerlos ni escucharlos.</span>
+                            </div>
+                        </div>
+
+                        {/* Área del Chat */}
+                        <div className="flex-1 bg-chat overflow-y-auto p-4 pt-20 flex flex-col gap-2">
+                            {/* Etiqueta de fecha */}
+                            <div className="flex justify-center my-2">
+                                <span className="bg-[#e1f3fb] text-[#54656f] text-xs px-3 py-1 rounded-lg shadow-sm font-medium uppercase tracking-wide">
+                                    Hoy
+                                </span>
+                            </div>
+
+                            {messages.map((msg) => (
+                                <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-1`}>
+                                    <div className={`relative max-w-[85%] rounded-lg px-2.5 py-1.5 text-[14.2px] shadow-sm ${msg.sender === 'user' ? 'bg-[#dcf8c6] rounded-tr-none' : 'bg-white rounded-tl-none'} whitespace-pre-wrap`}>
+                                        <div className="text-[#111b21] pb-3">
+                                            {formatText(msg.text)}
+                                        </div>
+                                        <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500">
+                                            <span>{msg.time}</span>
+                                            {msg.sender === 'user' && (
+                                                <i className="fa-solid fa-check-double text-[#53bdeb]"></i>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Indicador de escribiendo */}
+                            {isTyping && (
+                                <div className="flex justify-start mb-1">
+                                    <div className="bg-white rounded-lg rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={chatEndRef} />
+                        </div>
+
+                        {/* Barra de Input */}
+                        <div className="bg-[#f0f2f5] p-2 flex items-center gap-2 shrink-0">
+                            <div className="text-gray-500 text-2xl flex gap-3 px-2 cursor-pointer">
+                                <i className="fa-regular fa-face-smile hover:text-gray-600 transition-colors"></i>
+                                <i className="fa-solid fa-paperclip hover:text-gray-600 transition-colors"></i>
+                            </div>
+                            
+                            <form onSubmit={handleSendMessage} className="flex-1 flex items-center bg-white rounded-xl overflow-hidden px-3 py-2 shadow-sm">
+                                <input
+                                    type="text"
+                                    value={inputText}
+                                    onChange={(e) => setInputText(e.target.value)}
+                                    placeholder="Escribe un mensaje"
+                                    className="w-full text-[15px] outline-none text-[#111b21]"
+                                />
+                            </form>
+                            
+                            {inputText.trim() ? (
+                                <button onClick={handleSendMessage} className="w-10 h-10 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow-sm cursor-pointer hover:bg-[#008f6f] transition-colors shrink-0">
+                                    <i className="fa-solid fa-paper-plane ml-1 text-[16px]"></i>
+                                </button>
+                            ) : (
+                                <div className="w-10 h-10 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow-sm cursor-pointer shrink-0 hover:bg-[#008f6f] transition-colors">
+                                    <i className="fa-solid fa-microphone text-[16px]"></i>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* iOS Home Indicator */}
+                        <div className="hidden sm:flex w-full h-[34px] bg-[#f0f2f5] items-end justify-center pb-2 shrink-0">
+                            <div className="w-[134px] h-[5px] bg-gray-800 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<WhatsAppDemo />);
+    </script>
+</body>
+</html>
