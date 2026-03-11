@@ -1,0 +1,628 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { ShoppingCart, ShieldCheck, Truck, Send, Bot, ArrowRight, Tag, Info, CheckCircle2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, X, MessageSquare, Scale, Sparkles } from 'lucide-react';
+
+const ECI_GREEN = "#008a32";
+const ECI_LOGO = "https://jcompan.github.io/elcorteingles/email_imgs/logo_eci2-negro.png";
+const IQ500_IMG = "https://jcompan.github.io/elcorteingles/email_imgs/siemens_iq500.jpg";
+const IQ700_IMG = "https://jcompan.github.io/elcorteingles/email_imgs/siemens_iq700_plateada.jpg";
+
+const PRODUCT_DATABASE = {
+  iq500: {
+    id: 'iq500',
+    name: 'Lavadora Siemens iQ500',
+    specs: '9 kg • 1400 rpm • Clase A • Color Blanco',
+    price: 599,
+    discount: 100,
+    images: [IQ500_IMG, IQ500_IMG, IQ500_IMG],
+    features: [
+      'Capacidad de carga de hasta 9 kg ideal para familias.',
+      'Eficiencia Energética de Clase A (máximo ahorro).',
+      'Motor iQdrive súper silencioso con 10 años de garantía.',
+      'Programa varioSpeed: lava hasta un 65% más rápido.',
+      'Display LED con recomendación de carga.',
+      'Tambor waveDrum para el cuidado especial de la ropa.'
+    ]
+  },
+  iq700: {
+    id: 'iq700',
+    name: 'Lavadora Siemens iQ700 i-Dos',
+    specs: '10 kg • 1400 rpm • Clase A • Acero Inoxidable',
+    price: 799,
+    discount: 100,
+    images: [IQ700_IMG, IQ700_IMG, IQ700_IMG],
+    features: [
+      'Máxima capacidad de carga de 10 kg.',
+      'Acabado Premium en Acero Inoxidable antihuellas.',
+      'Autodosificación inteligente i-Dos: rellena una vez para 20 lavados.',
+      'Conectividad inteligente vía app Home Connect.',
+      'Eficiencia Energética Clase A.',
+      'Motor iQdrive súper silencioso con 10 años de garantía.',
+      'Iluminación interior del tambor.'
+    ]
+  }
+};
+
+export default function CheckoutAgent() {
+  // Estados de la Interfaz
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+  const [isComparing, setIsComparing] = useState(false);
+  const [showIQ700Preview, setShowIQ700Preview] = useState(false);
+
+  const isLeftMinimized = isComparing || showIQ700Preview;
+
+  // Estado del Carrito
+  const [cart, setCart] = useState(PRODUCT_DATABASE.iq500);
+
+  // Estado del Chat y Demo
+  const [messages, setMessages] = useState([
+    { 
+      role: 'agent', 
+      text: '¡Hola Carlos! 👋 Tienes tu Siemens iQ500 en la cesta con el descuento aplicado. ¿Te ayudo a resolver alguna duda final sobre este modelo, colores o características antes de tramitar el pago?' 
+    }
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [demoStep, setDemoStep] = useState(1); 
+  
+  const chatEndRef = useRef(null);
+
+  // Scroll automático del chat
+  useEffect(() => {
+    if (isChatOpen) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isTyping, isChatOpen]);
+
+  // Controlador de Teclado para la Demo interactiva
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Alt" || e.key === "Control" || e.key === "Shift" || e.key === "Meta") return;
+      
+      // Paso 1: Rellenar la pregunta comparativa
+      if (demoStep === 1 && isChatOpen) {
+        e.preventDefault();
+        setInputText("Tengo dudas. Estoy entre la iQ500 que tengo en la cesta y la iQ700. ¿Me puedes hacer una comparativa rápida para decidirme?");
+        setDemoStep(2); 
+      } 
+      // Paso 3: Agente responde y manipula la web (Muestra comparativa)
+      else if (demoStep === 3) {
+        e.preventDefault();
+        setIsTyping(false);
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          text: '¡Claro! Es una duda muy común. Aquí tienes una comparativa para que puedas ver las diferencias clave entre ambos modelos de un vistazo. ¡Dime qué te parece!'
+        }]);
+        setShowDetails(false);
+        setShowIQ700Preview(false);
+        setIsComparing(true);
+        setDemoStep(4); 
+      }
+      // Paso 4: Rellenar la pregunta sobre el color plateado
+      else if (demoStep === 4) {
+        e.preventDefault();
+        setInputText("Tiene muy buena pinta la iQ700. ¿Está disponible en color plateado?");
+        setDemoStep(5);
+      }
+      // Paso 6: Agente confirma color y despliega detalles EN LA PANTALLA PRINCIPAL
+      else if (demoStep === 6) {
+        e.preventDefault();
+        setIsTyping(false);
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          text: '¡Sí, por supuesto! El modelo iQ700 viene con un acabado premium en acero inoxidable antihuellas (plateado) que queda espectacular.\n\nAquí tienes la ficha detallada de este modelo para que puedas ver sus fotos y características. ¿Quieres que lo cambie por la iQ500 que tienes actualmente en la cesta?'
+        }]);
+        setIsComparing(false);
+        setShowIQ700Preview(true); // Se despliega el preview fuera del chat
+        setDemoStep(7);
+      }
+      // Paso 7: Carlos da el OK para actualizar el carrito
+      else if (demoStep === 7) {
+        e.preventDefault();
+        setInputText("Sí, me convence más. Actualiza la cesta por favor.");
+        setDemoStep(8);
+      }
+      // Paso 9: Agente actualiza la cesta finalmente
+      else if (demoStep === 9) {
+        e.preventDefault();
+        setIsTyping(false);
+        setCart(PRODUCT_DATABASE.iq700);
+        setCurrentImgIndex(0);
+        setShowIQ700Preview(false); // Quitamos la previsualización
+        setIsComparing(false); 
+        setShowDetails(true); // Abrimos los detalles del producto en el carrito automáticamente
+        setMessages(prev => [...prev, {
+          role: 'agent',
+          text: '¡Hecho! 🛒 Ya he actualizado tu cesta a la **Siemens iQ700 en acero**. El cupón de 100€ se ha mantenido aplicado y el pedido está listo para que lo tramites cuando quieras.'
+        }]);
+        setDemoStep(10);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [demoStep, isChatOpen]);
+
+  const nextImage = () => setCurrentImgIndex((prev) => (prev + 1) % cart.images.length);
+  const prevImage = () => setCurrentImgIndex((prev) => (prev - 1 + cart.images.length) % cart.images.length);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+
+    setMessages(prev => [...prev, { role: 'user', text: inputText.trim() }]);
+    setInputText('');
+    setIsTyping(true);
+
+    if (demoStep === 2) {
+      setDemoStep(3); 
+    } else if (demoStep === 5) {
+      setDemoStep(6);
+    } else if (demoStep === 8) {
+      setDemoStep(9);
+    }
+  };
+
+  // Manejar la selección desde la UI Web (Comparativa o Ficha Detalle)
+  const handleSelection = (modelId) => {
+    setIsComparing(false); 
+    setShowIQ700Preview(false);
+    
+    if (modelId === 'iq700') {
+      setCart(PRODUCT_DATABASE.iq700);
+      setCurrentImgIndex(0); 
+      setMessages(prev => [...prev, { 
+        role: 'agent', 
+        text: '¡Buena elección! 🛒 Ya he actualizado tu cesta a la **Siemens iQ700 en acero**. El cupón de 100€ se ha mantenido aplicado y el pedido está listo para que lo tramites cuando quieras.' 
+      }]);
+    } else {
+      setMessages(prev => [...prev, { 
+        role: 'agent', 
+        text: '¡Perfecto! Mantenemos la **Siemens iQ500** en blanco. Tienes todo listo en la columna principal para continuar con tu pago seguro.' 
+      }]);
+    }
+    setDemoStep(10);
+  };
+
+  const handleCheckout = () => {
+    setPaymentSuccess(true);
+  };
+
+  if (paymentSuccess) {
+    return (
+      <div className="min-h-screen bg-[#f1f4f1] flex items-center justify-center p-4 font-sans text-[#000000]">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center border-t-4" style={{ borderColor: ECI_GREEN }}>
+          <CheckCircle2 className="w-20 h-20 mx-auto mb-6" style={{ color: ECI_GREEN }} />
+          <h2 className="text-2xl font-bold mb-2">¡Pedido Completado!</h2>
+          <p className="text-gray-600 mb-6">Gracias por tu compra en El Corte Inglés, Carlos.</p>
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left border border-gray-100">
+            <p className="text-sm text-gray-500 mb-1">Número de pedido</p>
+            <p className="font-bold text-lg mb-3">#ECI-09876543</p>
+            <p className="text-sm text-gray-500 mb-1">Artículo</p>
+            <p className="font-medium text-md mb-3">{cart.name}</p>
+            <p className="text-sm text-gray-500 mb-1">Entrega</p>
+            <p className="font-medium text-md text-[#008a32] flex items-center gap-2">
+              <Truck size={16} /> Mañana (C. Ramón Areces, Gijón)
+            </p>
+          </div>
+          <p className="text-sm text-gray-600 flex flex-col items-center gap-2">
+             <Bot size={24} className="text-[#008a32]" />
+             Tal y como acordamos, nuestro Agente ECI te notificará en breve por WhatsApp con los detalles del envío.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f6f8fc] font-sans text-[#000000] flex flex-col relative overflow-x-hidden">
+      
+      {/* HEADER ECI */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <img src={ECI_LOGO} alt="El Corte Inglés" className="h-8 object-contain" />
+          <div className="flex items-center gap-2 text-gray-600 text-sm font-medium">
+            <ShieldCheck size={18} style={{ color: ECI_GREEN }} />
+            <span className="hidden sm:inline">Pago 100% Seguro</span>
+          </div>
+        </div>
+      </header>
+
+      {/* CONTENIDO PRINCIPAL */}
+      <main className={`flex-1 mx-auto w-full p-4 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-8 transition-all duration-700 ease-in-out ${isChatOpen ? 'max-w-[1400px]' : 'max-w-4xl'}`}>
+        
+        {/* COLUMNA IZQUIERDA: CARRITO, COMPARATIVA O FICHA PREVIEW */}
+        <div className={`w-full flex flex-col gap-6 transition-all duration-700 ease-in-out ${isChatOpen ? (isLeftMinimized ? 'lg:w-[60%]' : 'lg:w-[55%]') : 'lg:w-[100%]'}`}>
+          
+          {/* BLOQUE CARRITO (Se minimiza si isLeftMinimized es true) */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-500">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <ShoppingCart size={20} /> Resumen de tu pedido
+              </h2>
+              {!isLeftMinimized && <span className="text-sm font-medium text-gray-500">1 Artículo</span>}
+            </div>
+            
+            <div className={`p-6 transition-all duration-500`}>
+              {/* Información Básica */}
+              <div className={`flex relative gap-4 ${isLeftMinimized ? 'flex-row items-center' : 'flex-col sm:flex-row sm:gap-6'}`}>
+                <div className={`${isLeftMinimized ? 'w-24 h-24' : 'w-full sm:w-32 h-32'} bg-gray-50 rounded-lg p-2 shrink-0 border border-gray-100 flex items-center justify-center transition-all duration-500`}>
+                  <img src={cart.images[0]} alt={cart.name} className="w-full h-full object-contain mix-blend-multiply" />
+                </div>
+                <div className="flex flex-col flex-1 justify-center">
+                  <h3 className={`font-bold leading-tight ${isLeftMinimized ? 'text-[15px]' : 'text-[18px] mb-1'}`}>{cart.name}</h3>
+                  {!isLeftMinimized && <p className="text-gray-500 text-[13px] mb-3">{cart.specs}</p>}
+                  <div className="flex justify-between items-center w-full mt-1">
+                    <p className={`font-bold text-[#008a32] flex items-center gap-1.5 bg-green-50 border border-green-100 w-fit rounded-md ${isLeftMinimized ? 'text-[11px] px-2 py-1' : 'text-sm px-3 py-1.5'}`}>
+                      <Truck size={isLeftMinimized ? 12 : 16} /> Entrega mañana
+                    </p>
+                    {isLeftMinimized && (
+                      <p className="font-black text-xl">{cart.price - cart.discount},00 €</p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Indicador Visual IA */}
+                <div key={cart.id} className={`absolute -left-2 -top-2 animate-bounce bg-[#3cc8be] text-white font-bold rounded-full shadow-md uppercase tracking-wider ${isLeftMinimized ? 'text-[9px] px-2 py-0.5' : 'text-[10px] px-3 py-1'}`}>
+                  {cart.id === 'iq700' ? 'Actualizado por Agente' : 'Reservado'}
+                </div>
+              </div>
+
+              {/* Acordeón de Detalles (Oculto si comparando o en preview) */}
+              <div className={`overflow-hidden transition-all duration-500 ${isLeftMinimized ? 'max-h-0 opacity-0 mt-0' : 'max-h-[1000px] opacity-100 mt-6'}`}>
+                <div className="border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
+                  <button 
+                    onClick={() => setShowDetails(!showDetails)}
+                    className="w-full px-5 py-3 flex justify-between items-center bg-white hover:bg-gray-50 transition-colors text-sm font-bold text-gray-700"
+                  >
+                    <span className="flex items-center gap-2"><Info size={16} className="text-[#008a32]"/> Ver detalle y fotografías</span>
+                    {showDetails ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  
+                  {showDetails && (
+                    <div className="p-5 border-t border-gray-100 bg-white grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-2 duration-200">
+                      <div className="flex flex-col gap-2">
+                        <div className="relative h-48 bg-gray-50 rounded-lg border border-gray-100 p-2 flex items-center justify-center group">
+                          <img src={cart.images[currentImgIndex]} alt={`${cart.name} vista ${currentImgIndex + 1}`} className="h-full w-auto object-contain mix-blend-multiply" />
+                          <button onClick={prevImage} className="absolute left-2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ChevronLeft size={20} />
+                          </button>
+                          <button onClick={nextImage} className="absolute right-2 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ChevronRight size={20} />
+                          </button>
+                        </div>
+                        <div className="flex justify-center gap-2">
+                          {cart.images.map((_, idx) => (
+                            <button 
+                              key={idx} 
+                              onClick={() => setCurrentImgIndex(idx)}
+                              className={`w-2 h-2 rounded-full transition-colors ${idx === currentImgIndex ? 'bg-[#008a32]' : 'bg-gray-300'}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-[13px] uppercase text-gray-500 mb-3 tracking-wide">Características</h4>
+                        <ul className="space-y-2">
+                          {cart.features.map((feature, idx) => (
+                            <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                              <CheckCircle2 size={16} className="text-[#3cc8be] shrink-0 mt-0.5" />
+                              <span className="leading-snug">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Resumen de Precios */}
+                <div className="border-t border-gray-100 pt-5 mt-6 space-y-3">
+                  <div className="flex justify-between text-[14px] text-gray-600">
+                    <span>Subtotal</span>
+                    <span>{cart.price},00 €</span>
+                  </div>
+                  <div className="flex justify-between text-[14px] font-bold text-[#008a32] bg-green-50/50 p-2 -mx-2 rounded">
+                    <span className="flex items-center gap-1.5"><Tag size={16}/> Promoción Email</span>
+                    <span>-{cart.discount},00 €</span>
+                  </div>
+                  
+                  <div className="border-gray-200 flex justify-between items-center border-t mt-4 pt-4">
+                    <span className="text-xl font-bold">Total:</span>
+                    <div className="text-right">
+                       <span className="text-4xl font-black">{cart.price - cart.discount},00 €</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botón de Pago Normal */}
+                <button onClick={handleCheckout} className="w-full mt-8 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:shadow-lg transition-all shadow-md py-4 text-lg" style={{ backgroundColor: ECI_GREEN }}>
+                  Tramitar Pedido <ArrowRight size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* BLOQUE WEB COMPARATIVA (Generado por el Agente) */}
+          {isComparing && (
+            <div className="bg-white rounded-2xl shadow-xl border-2 border-[#008a32] overflow-hidden relative animate-in slide-in-from-bottom-8 duration-700">
+              <div className="bg-green-50/50 px-6 py-5 border-b border-green-100">
+                <h2 className="text-xl font-black flex items-center gap-2 text-[#002b49]">
+                  <Scale size={24} className="text-[#008a32]" /> Comparativa de Modelos
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">Elige qué modelo prefieres. Al seleccionar, tu carrito se actualizará automáticamente.</p>
+              </div>
+              
+              <div className="w-full overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead>
+                    <tr className="bg-white border-b border-gray-200">
+                      <th className="p-4 w-1/3 text-gray-400 font-medium">Característica</th>
+                      <th className="p-4 w-1/3 text-center border-l border-gray-100">
+                        <img src={PRODUCT_DATABASE.iq500.images[0]} alt="iQ500" className="h-20 mx-auto object-contain mb-2 mix-blend-multiply" />
+                        <div className="font-bold text-gray-800 text-[15px]">Siemens iQ500</div>
+                        <div className="text-xs text-gray-500 font-normal">Modelo actual en cesta</div>
+                      </th>
+                      <th className="p-4 w-1/3 text-center border-l border-green-200 bg-green-50/30">
+                        <img src={PRODUCT_DATABASE.iq700.images[0]} alt="iQ700" className="h-20 mx-auto object-contain mb-2 mix-blend-multiply" />
+                        <div className="font-bold text-[#008a32] text-[15px]">Siemens iQ700</div>
+                        <div className="text-xs text-[#008a32] font-normal">Recomendado Superior</div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Capacidad</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-800">9 kg</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 font-bold text-[#008a32]">10 kg (+1 kg extra)</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Acabado Exterior</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-800">Blanco Clásico</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 font-bold text-[#008a32]">Acero Inox Antihuellas</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Dosificación Detergente</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-800">Manual convencional</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 font-bold text-[#008a32]">Inteligente (i-Dos)</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Conectividad inteligente</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-500">No disponible</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 font-bold text-[#008a32]">Sí (App Home Connect)</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Revoluciones (Centrifugado)</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-800">1400 rpm</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 text-[#008a32]">1400 rpm</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Eficiencia Energética</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-800">Clase A</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 text-[#008a32]">Clase A</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Iluminación interior tambor</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-500">No</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 font-bold text-[#008a32]">Sí</td>
+                    </tr>
+                    <tr className="border-b border-gray-100 hover:bg-gray-50/50">
+                      <td className="p-4 font-medium text-gray-600">Garantía Motor iQdrive</td>
+                      <td className="p-4 text-center border-l border-gray-100 text-gray-800">10 años</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/30 text-[#008a32]">10 años</td>
+                    </tr>
+                    <tr className="border-b border-gray-200 bg-gray-50/30">
+                      <td className="p-4 font-medium text-gray-600">Precio (Cupón -100€)</td>
+                      <td className="p-4 text-center border-l border-gray-100 font-black text-xl text-gray-800">499 €</td>
+                      <td className="p-4 text-center border-l border-green-200 bg-green-50/50 font-black text-2xl text-[#008a32]">699 €</td>
+                    </tr>
+                    <tr>
+                      <td className="p-4 bg-white"></td>
+                      <td className="p-4 bg-white border-l border-gray-100 text-center">
+                        <button 
+                          onClick={() => handleSelection('iq500')}
+                          className="w-full py-3 px-2 text-sm font-bold border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 transition shadow-sm"
+                        >
+                          Mantener iQ500
+                        </button>
+                      </td>
+                      <td className="p-4 bg-green-50/30 border-l border-green-200 text-center">
+                        <button 
+                          onClick={() => handleSelection('iq700')}
+                          className="w-full py-3 px-2 text-[15px] font-bold bg-[#008a32] text-white rounded-xl hover:bg-[#006b26] transition shadow-md flex items-center justify-center gap-2"
+                        >
+                          <ShoppingCart size={18}/> Actualizar a iQ700
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* BLOQUE WEB PREVIEW FICHA (Generado por el Agente en paso 6) */}
+          {showIQ700Preview && (
+             <div className="bg-white rounded-2xl shadow-xl border-2 border-[#008a32] overflow-hidden relative animate-in slide-in-from-bottom-8 duration-700">
+               <div className="bg-green-50/50 px-6 py-5 border-b border-green-100">
+                 <h2 className="text-xl font-black flex items-center gap-2 text-[#002b49]">
+                   Ficha Detallada: Siemens iQ700
+                 </h2>
+                 <p className="text-sm text-gray-600 mt-1">Revisa las características del modelo en acero inoxidable antihuellas que te recomendamos.</p>
+               </div>
+               
+               <div className="p-6 flex flex-col xl:flex-row gap-8">
+                 <div className="w-full xl:w-2/5 bg-gray-50 rounded-xl p-6 border border-gray-100 flex items-center justify-center">
+                   <img src={PRODUCT_DATABASE.iq700.images[0]} className="w-full max-h-64 object-contain mix-blend-multiply" alt="iQ700" />
+                 </div>
+                 <div className="w-full xl:w-3/5">
+                   <h3 className="text-2xl font-bold text-[#008a32] mb-2">{PRODUCT_DATABASE.iq700.name}</h3>
+                   <p className="text-gray-600 mb-4">{PRODUCT_DATABASE.iq700.specs}</p>
+                   
+                   <div className="text-4xl font-black text-gray-800 mb-6">
+                     {PRODUCT_DATABASE.iq700.price - PRODUCT_DATABASE.iq700.discount} € <span className="text-base font-normal text-gray-500 line-through ml-2">{PRODUCT_DATABASE.iq700.price} €</span>
+                   </div>
+                   
+                   <h5 className="font-bold text-gray-800 mb-4 uppercase tracking-wide text-[13px]">Características Principales</h5>
+                   <ul className="space-y-3">
+                     {PRODUCT_DATABASE.iq700.features.map((f, i) => (
+                       <li key={i} className="text-sm text-gray-700 flex items-start gap-3">
+                         <CheckCircle2 size={18} className="text-[#3cc8be] shrink-0 mt-0.5" />
+                         <span className="leading-snug">{f}</span>
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
+               </div>
+               
+               <div className="bg-gray-50 p-5 border-t border-gray-200 flex flex-wrap justify-end gap-4">
+                  <button 
+                    onClick={() => { 
+                      setShowIQ700Preview(false); 
+                      setDemoStep(10); 
+                      setMessages(prev => [...prev, {role: 'agent', text: '¡Perfecto! Mantenemos la **Siemens iQ500** en blanco. Tienes todo listo en la columna principal para continuar con tu pago seguro.'}]); 
+                    }} 
+                    className="px-6 py-3 font-bold text-gray-600 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 transition"
+                  >
+                    Me quedo la iQ500
+                  </button>
+                  <button 
+                    onClick={() => {
+                       setInputText("Sí, me convence más. Actualiza la cesta por favor.");
+                       setDemoStep(8);
+                    }} 
+                    className="px-6 py-3 font-bold text-white bg-[#008a32] rounded-xl shadow-md hover:bg-[#006b26] transition flex items-center gap-2"
+                  >
+                    <ShoppingCart size={18} /> ¡Sí, quiero la iQ700!
+                  </button>
+               </div>
+             </div>
+          )}
+
+        </div>
+
+        {/* COLUMNA DERECHA: CHAT DEL AGENTE */}
+        {isChatOpen && (
+          <div className={`w-full flex flex-col bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden relative transition-all duration-700 ease-in-out h-[650px] lg:h-auto ${isLeftMinimized ? 'lg:w-[40%]' : 'lg:w-[45%]'}`}>
+            
+            {/* Cabecera del Chat */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-[#f8fcf9]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#008a32] text-white flex items-center justify-center shadow-sm relative">
+                  <Bot size={20} />
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
+                </div>
+                <div>
+                  <h2 className="font-bold text-[15px] leading-tight">Agente ECI</h2>
+                  <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                     Conectado con tu perfil y email
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setIsChatOpen(false);
+                  setIsComparing(false); 
+                  setShowIQ700Preview(false);
+                }}
+                className="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Mensajes */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
+              <div className="text-center text-xs text-gray-400 font-medium mb-4 uppercase tracking-wider">Sesión continuada desde el email • Gijón</div>
+              
+              {messages.map((msg, index) => (
+                <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {msg.role === 'agent' && (
+                    <div className="w-8 h-8 rounded-full bg-[#008a32] text-white flex items-center justify-center shrink-0 mr-3 mt-1 shadow-sm">
+                      <Bot size={16} />
+                    </div>
+                  )}
+                  
+                  <div className={`max-w-[90%] flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div 
+                      className={`px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed shadow-sm ${
+                        msg.role === 'user' 
+                          ? 'bg-gray-800 text-white rounded-tr-sm' 
+                          : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'
+                      }`}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} />
+                    </div>
+                  </div>
+
+                  {msg.role === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 ml-3 mt-1 font-bold text-sm shadow-sm">
+                      C
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="w-8 h-8 rounded-full bg-[#008a32] text-white flex items-center justify-center shrink-0 mr-3 shadow-sm">
+                    <Bot size={16} />
+                  </div>
+                  <div className="bg-white border border-gray-200 px-5 py-4 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="p-4 bg-white border-t border-gray-200">
+              <form onSubmit={handleSendMessage} className="relative flex items-center">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="Escribe tu pregunta sobre los modelos..."
+                  className="w-full bg-gray-100 border border-transparent rounded-full py-3.5 pl-5 pr-14 text-sm text-gray-800 outline-none focus:bg-white focus:border-[#008a32] focus:ring-4 focus:ring-[#008a32]/10 transition-all"
+                />
+                <button 
+                  type="submit"
+                  disabled={!inputText.trim()}
+                  className="absolute right-2 p-2.5 bg-[#008a32] text-white rounded-full hover:bg-[#006b26] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Send size={16} />
+                </button>
+              </form>
+              <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px] text-gray-400 font-medium">
+                <Info size={12} /> El Agente ECI modifica la web en tiempo real.
+              </div>
+            </div>
+
+          </div>
+        )}
+
+      </main>
+
+      {/* Botón Flotante para abrir Chat */}
+      {!isChatOpen && !paymentSuccess && (
+        <button 
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 lg:bottom-10 lg:right-10 bg-[#008a32] text-white p-4 rounded-full shadow-2xl hover:bg-[#006b26] hover:scale-105 transition-all duration-300 flex items-center gap-3 z-50 group animate-in slide-in-from-bottom-5"
+        >
+          <MessageSquare size={24} />
+          <span className="font-bold hidden sm:block max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 whitespace-nowrap">
+            Hablar con Agente ECI
+          </span>
+          <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
+        </button>
+      )}
+
+    </div>
+  );
+}
