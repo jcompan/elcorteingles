@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salesforce - Customer 360 ECI</title>
+    <!-- Favicon de Salesforce -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Salesforce.com_logo.svg/256px-Salesforce.com_logo.svg.png" type="image/png">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Salesforce+Sans:wght@300;400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React & ReactDOM via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Inter', 'Salesforce Sans', sans-serif; 
+            background-color: #b0c4df; /* Salesforce SLDS background */
+        }
+        .slds-blue { color: #0176d3; }
+        .slds-bg-blue { background-color: #0176d3; }
+        .slds-border-blue { border-color: #0176d3; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c9c9c9; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #adadad; }
+
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: 0;
+            left: 23px;
+            width: 2px;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
+        .timeline-item:last-child .timeline-line::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+    <div id="root" class="h-full flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function SalesforceUI() {
+            const [activeTab, setActiveTab] = useState('actividad');
+
+            return (
+                <div className="h-full flex flex-col">
+                    
+                    {/* HEADER SALESFORCE */}
+                    <header className="bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4 shrink-0 shadow-sm z-20">
+                        <div className="flex items-center gap-4">
+                            <i className="fa-solid fa-bars text-gray-500 cursor-pointer text-lg hover:text-gray-800 transition"></i>
+                            <div className="flex items-center gap-2">
+                                <i className="fa-brands fa-salesforce text-blue-500 text-3xl"></i>
+                                <span className="font-bold text-gray-800 text-lg hidden sm:block">Service Console</span>
+                            </div>
+                            <div className="ml-6 text-sm font-medium text-gray-600 hidden lg:flex items-center gap-6">
+                                <span className="hover:text-blue-600 cursor-pointer border-b-2 border-transparent hover:border-blue-600 py-4 transition">Inicio</span>
+                                <span className="text-blue-600 cursor-pointer border-b-2 border-blue-600 py-4 font-bold flex items-center gap-2">
+                                    <i className="fa-solid fa-user text-xs"></i> Carlos Gomez
+                                    <i className="fa-solid fa-xmark text-gray-400 hover:text-gray-800 ml-1"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 text-gray-500 text-lg">
+                            <div className="relative hidden md:block mr-2">
+                                <div className="bg-gray-100 border border-gray-300 rounded-full w-64 flex items-center px-3 py-1.5 focus-within:bg-white focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                                    <i className="fa-solid fa-search text-gray-500 text-xs"></i>
+                                    <input type="text" placeholder="Buscar..." className="bg-transparent border-none outline-none ml-2 text-sm w-full"/>
+                                </div>
+                            </div>
+                            <i className="fa-solid fa-plus cursor-pointer hover:text-gray-800 transition"></i>
+                            <i className="fa-regular fa-bell cursor-pointer hover:text-gray-800 transition relative">
+                                <span className="absolute -top-1 -right-1 bg-red-500 w-2 h-2 rounded-full"></span>
+                            </i>
+                            <i className="fa-solid fa-gear cursor-pointer hover:text-gray-800 transition"></i>
+                            <div className="w-8 h-8 bg-purple-600 rounded-full text-white flex items-center justify-center font-bold text-sm cursor-pointer ml-2 shadow-sm">
+                                AG
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* MAIN WORKSPACE - 3 COLUMNS */}
+                    <main className="flex-1 overflow-hidden p-3 lg:p-4 flex flex-col lg:flex-row gap-4">
+                        
+                        {/* COLUMNA IZQUIERDA: PERFIL 360 */}
+                        <div className="w-full lg:w-[25%] flex flex-col gap-4 overflow-y-auto h-full pr-1 pb-4">
+                            
+                            {/* Card Perfil Principal */}
+                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden shrink-0">
+                                {/* Banner */}
+                                <div className="h-20 bg-gradient-to-r from-[#002b49] to-[#008a32] relative">
+                                    <div className="absolute -bottom-8 left-4 w-16 h-16 bg-white rounded-lg p-1 shadow-md border border-gray-200 flex justify-center items-center">
+                                        <div className="w-full h-full bg-green-100 rounded flex items-center justify-center text-green-700 text-2xl font-bold">
+                                            CG
+                                        </div>
+                                    </div>
+                                    <div className="absolute top-2 right-2 bg-white/20 backdrop-blur text-white text-xs px-2 py-1 rounded font-medium border border-white/30 flex items-center gap-1">
+                                        <i className="fa-regular fa-star"></i> Cliente VIP
+                                    </div>
+                                </div>
+                                
+                                <div className="pt-10 px-4 pb-4">
+                                    <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                        Carlos Gomez
+                                        <i className="fa-solid fa-circle-check text-blue-500 text-sm" title="Identidad Verificada"></i>
+                                    </h1>
+                                    <p className="text-sm text-gray-500 mt-0.5">Cliente desde 2018 • Gijón, Asturias</p>
+                                    
+                                    <div className="flex gap-2 mt-4">
+                                        <button className="flex-1 bg-white border border-gray-300 text-gray-700 py-1.5 rounded font-semibold text-xs hover:bg-gray-50 shadow-sm transition">Editar</button>
+                                        <button className="flex-1 slds-bg-blue text-white py-1.5 rounded font-semibold text-xs hover:bg-blue-700 shadow-sm transition flex items-center justify-center gap-1.5">
+                                            <i className="fa-solid fa-wand-magic-sparkles"></i> Agentforce
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Detalles de Contacto */}
+                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden shrink-0">
+                                <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5 flex justify-between items-center">
+                                    <h2 className="font-bold text-gray-800 text-sm">Detalles de Contacto</h2>
+                                    <i className="fa-solid fa-chevron-up text-gray-400 text-xs"></i>
+                                </div>
+                                <div className="p-4 space-y-4">
+                                    <div>
+                                        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Teléfono Móvil</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-sm font-semibold text-gray-800">+34 612 34 56 78</p>
+                                            <span className="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+                                                <i className="fa-brands fa-whatsapp"></i> Activo
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Email</p>
+                                        <p className="text-sm font-semibold slds-blue mt-1 hover:underline cursor-pointer">carlos.gomez@gmail.com</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Dirección Principal</p>
+                                        <p className="text-sm text-gray-800 mt-1 leading-tight">C. Ramón Areces, 2<br/>33211 Gijón, Asturias</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Fidelización y Consentimientos */}
+                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden shrink-0">
+                                <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5">
+                                    <h2 className="font-bold text-gray-800 text-sm">Fidelización y Privacidad</h2>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                    <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-2">
+                                        <span className="text-gray-600 font-medium">Tarjeta ECI</span>
+                                        <span className="font-bold text-[#008a32] flex items-center gap-1">
+                                            <i className="fa-regular fa-credit-card"></i> Vinculada
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600 font-medium">Email Marketing</span>
+                                        <i className="fa-solid fa-check text-green-500"></i>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600 font-medium">WhatsApp (Transaccional)</span>
+                                        <span className="text-[10px] bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded">Confirmado Hoy</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* COLUMNA CENTRAL: TIMELINE */}
+                        <div className="w-full lg:w-[45%] xl:w-[50%] bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col overflow-hidden h-full">
+                            
+                            {/* Tabs */}
+                            <div className="flex border-b border-gray-200 bg-white px-2 pt-2 shrink-0 shadow-sm z-10">
+                                <button className={`px-5 py-3 text-sm font-bold border-b-2 slds-border-blue slds-blue transition-colors`}>
+                                    Cronología de Actividad
+                                </button>
+                                <button className={`px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors`}>
+                                    Casos
+                                </button>
+                                <button className={`px-5 py-3 text-sm font-bold border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors`}>
+                                    Notas
+                                </button>
+                            </div>
+
+                            {/* Contenido Timeline */}
+                            <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50/50">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="font-bold text-gray-800 text-base">Próximos pasos y actividades pasadas</h3>
+                                    <div className="flex gap-2">
+                                        <button className="bg-white border border-gray-300 text-gray-600 p-1.5 rounded hover:bg-gray-50 shadow-sm"><i className="fa-solid fa-arrows-rotate text-sm"></i></button>
+                                        <button className="bg-white border border-gray-300 text-gray-600 px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 hover:bg-gray-50 shadow-sm">
+                                            <i className="fa-solid fa-filter"></i> Filtrar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="relative ml-2 pb-8 space-y-6">
+                                    
+                                    {/* ITEM 5: WHATSAPP */}
+                                    <div className="relative pl-10 timeline-item">
+                                        <div className="timeline-line"></div>
+                                        <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center text-white ring-4 ring-gray-50 shadow-sm z-10">
+                                            <i className="fa-brands fa-whatsapp text-xl"></i>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h4 className="font-bold text-gray-800 text-[15px]">Agente Logística (WhatsApp) gestionó entrega</h4>
+                                                    <p className="text-xs text-blue-600 font-bold flex items-center gap-1 mt-0.5">
+                                                        <i className="fa-solid fa-robot"></i> Sesión 100% autónoma por Agentforce
+                                                    </p>
+                                                </div>
+                                                <span className="text-xs font-bold text-gray-400">Hoy, 11:35 AM</span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mb-3">El Agente contactó al cliente por WhatsApp para confirmar franja de entrega matinal. El cliente solicitó cambio a la tarde por trabajo.</p>
+                                            <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-sm flex gap-3 items-center">
+                                                <div className="bg-green-100 text-green-700 w-10 h-10 rounded flex items-center justify-center shrink-0">
+                                                    <i className="fa-solid fa-calendar-check text-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-gray-800">Nueva cita confirmada en sistema</p>
+                                                    <p className="text-gray-600 text-xs mt-0.5">Mañana (C. Ramón Areces, Gijón) - Franja: 16:00 a 18:00</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* ITEM 4: ORDER */}
+                                    <div className="relative pl-10 timeline-item">
+                                        <div className="timeline-line"></div>
+                                        <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white ring-4 ring-gray-50 shadow-sm z-10">
+                                            <i className="fa-solid fa-bag-shopping text-lg"></i>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <h4 className="font-bold text-gray-800 text-[15px]">Pedido Confirmado #ECI-09876543</h4>
+                                                <span className="text-xs font-bold text-gray-400">Hoy, 10:50 AM</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 bg-gray-50 p-2 rounded border border-gray-100">
+                                                <div className="w-12 h-12 bg-white rounded border border-gray-200 flex justify-center items-center shrink-0 p-1">
+                                                    <img src="https://jcompan.github.io/elcorteingles/email_imgs/siemens_iq700_plateada.jpg" alt="Lavadora" className="h-full object-contain mix-blend-multiply" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-gray-800">Lavadora Siemens iQ700 i-Dos</p>
+                                                    <p className="text-xs text-gray-500">Pagado con Tarjeta ECI • 699,00 € (Cupón aplicado)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* ITEM 3: WEB SESSION */}
+                                    <div className="relative pl-10 timeline-item">
+                                        <div className="timeline-line"></div>
+                                        <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white ring-4 ring-gray-50 shadow-sm z-10">
+                                            <i className="fa-solid fa-desktop"></i>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h4 className="font-bold text-gray-800 text-[15px]">Sesión de Compra Asistida (Web)</h4>
+                                                    <p className="text-xs text-blue-600 font-bold flex items-center gap-1 mt-0.5">
+                                                        <i className="fa-solid fa-robot"></i> Gestionado por Agentforce Checkout
+                                                    </p>
+                                                </div>
+                                                <span className="text-xs font-bold text-gray-400">Hoy, 10:46 AM</span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mb-3">El cliente continuó el flujo desde el correo. Solicitó comparativa entre iQ500 y modelo superior. Preguntó por disponibilidad de color acero inoxidable.</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Upselling Exitoso (+200€)</span>
+                                                <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Cambio iQ500 -> iQ700</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* ITEM 2: EMAIL CHAT */}
+                                    <div className="relative pl-10 timeline-item">
+                                        <div className="timeline-line"></div>
+                                        <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-[#0176d3] flex items-center justify-center text-white ring-4 ring-gray-50 shadow-sm z-10">
+                                            <i className="fa-solid fa-envelope-open-text"></i>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <h4 className="font-bold text-gray-800 text-[15px]">Interacción Asistida en Email</h4>
+                                                    <p className="text-xs text-blue-600 font-bold flex items-center gap-1 mt-0.5">
+                                                        <i className="fa-solid fa-robot"></i> Gestionado por Agentforce Email
+                                                    </p>
+                                                </div>
+                                                <span className="text-xs font-bold text-gray-400">Hoy, 10:15 AM</span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 bg-blue-50/50 p-2 rounded border border-blue-100">El cliente respondió al email promocional con dudas sobre cupones para lavadoras. El Agente aclaró que el descuento era de 100€ y recomendó modelos iQ500 y iQ700 basados en perfil familiar (4 pers).</p>
+                                        </div>
+                                    </div>
+
+                                    {/* ITEM 1: MARKETING */}
+                                    <div className="relative pl-10 timeline-item">
+                                        <div className="absolute left-0 top-1 w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white ring-4 ring-gray-50 shadow-sm z-10">
+                                            <i className="fa-solid fa-bullhorn"></i>
+                                        </div>
+                                        <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="font-bold text-gray-700 text-[15px]">Envío de Campaña de Marketing</h4>
+                                                <span className="text-xs font-bold text-gray-400">Hoy, 09:00 AM</span>
+                                            </div>
+                                            <p className="text-sm text-gray-500 mt-1">Campaña Email: "No es magia. Es ingeniería alemana. Hasta 200€ dto."</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* COLUMNA DERECHA: INSIGHTS Y RELACIONADOS */}
+                        <div className="w-full lg:w-[30%] xl:w-[25%] flex flex-col gap-4 overflow-y-auto h-full pr-1 pb-4">
+                            
+                            {/* EINSTEIN / AGENTFORCE INSIGHTS */}
+                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden shrink-0">
+                                <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                                <div className="p-4">
+                                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
+                                        <i className="fa-solid fa-wand-magic-sparkles text-purple-600"></i> Einstein Insights
+                                    </h2>
+                                    
+                                    <div className="space-y-5">
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sentimiento del Cliente</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                                                    <div className="bg-green-500 h-full rounded-full" style={{width: '95%'}}></div>
+                                                </div>
+                                                <span className="text-xs font-bold text-green-600">Excelente</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-purple-50 rounded-lg border border-purple-100 p-3 text-sm text-gray-800 shadow-sm">
+                                            <strong className="text-purple-800 block mb-1 text-xs uppercase tracking-wide"><i className="fa-solid fa-bolt text-purple-600 mr-1"></i> Resumen Ejecutivo</strong>
+                                            <p className="leading-snug text-xs mt-1">El Agente IA cerró exitosamente un proceso <i>end-to-end</i> de 50 mins. Resolvió dudas en email, ejecutó un <strong>upsell a modelo premium (+200€)</strong> en web, y gestionó proactivamente la reagendación logística por WhatsApp sin intervención humana.</p>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-2">Next Best Action</p>
+                                            <button className="w-full bg-white border border-blue-500 slds-blue px-3 py-2 rounded font-semibold text-sm hover:bg-blue-50 transition shadow-sm flex items-center justify-center gap-2">
+                                                <i className="fa-solid fa-gift"></i> Enviar promo detergentes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PEDIDOS RECIENTES */}
+                            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden shrink-0">
+                                <div className="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/80">
+                                    <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                        <i className="fa-solid fa-box text-gray-400"></i> Pedidos Recientes
+                                    </h2>
+                                    <span className="text-xs font-bold text-gray-500">1</span>
+                                </div>
+                                <div className="p-3">
+                                    <div className="flex items-start gap-3 border border-gray-100 p-2 rounded-lg hover:shadow-md transition cursor-pointer bg-white">
+                                        <div className="w-14 h-14 bg-gray-50 flex items-center justify-center rounded border border-gray-100 shrink-0 p-1">
+                                            <img src="https://jcompan.github.io/elcorteingles/email_imgs/siemens_iq700_plateada.jpg" alt="iQ700" className="h-full object-contain mix-blend-multiply" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start">
+                                                <p className="text-xs font-bold text-blue-600 hover:underline truncate w-24">#09876543</p>
+                                                <span className="text-[9px] font-bold bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded uppercase">Prep. Envío</span>
+                                            </div>
+                                            <p className="text-[11px] text-gray-600 font-medium leading-tight mt-1">Lavadora Siemens iQ700 i-Dos</p>
+                                            <p className="text-xs text-gray-800 font-bold mt-1">699,00 €</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <a href="#" className="text-xs font-bold slds-blue hover:underline">Ver todos</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SalesforceUI />);
+    </script>
+</body>
+</html>
